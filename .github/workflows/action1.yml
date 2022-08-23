@@ -21,7 +21,7 @@ jobs:
     needs: Download-Deb-Package
     strategy:
       matrix:
-        distro: [debian:oldstable, debian:stable, debian:testing, ubuntu:latest]
+        distro: ["debian:oldstable", "debian:stable", "debian:testing", "ubuntu:latest"]
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.distro }}
