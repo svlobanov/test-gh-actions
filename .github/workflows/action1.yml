@@ -17,11 +17,14 @@ jobs:
       - run: cat 4444
       - run: echo 555 > /debpkg/12345
 
-  Test-in-Debian-Stable:
+  Test-in-OS-Containers:
     needs: Download-Deb-Package
+    strategy:
+      matrix:
+        distro: [debian:oldstable, debian:stable, debian:testing, ubuntu:latest]
     runs-on: ubuntu-latest
     container:
-      image: debian:stable
+      image: ${{ matrix.distro }}
       volumes:
         - debpkg:/debpkg
     steps:
