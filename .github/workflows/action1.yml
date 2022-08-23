@@ -1,9 +1,19 @@
 name: test123
-on: [workflow_dispatch]
+on: [workflow_dispatch, push]
 jobs:
-  Explore-GitHub-Actions:
-    runs-on: ubuntu-22.04
+  Test-in-Debian-Stable:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:stable
+      ports:
+        - 8018
+        - 8123
+      volumes:
+        - debpkg:/debpkg
     steps:
+      - run: cat /etc/issue
+      - run: uname -a
+      - run: ls -la /debpkg || echo no_debpkg
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
@@ -11,11 +21,6 @@ jobs:
         uses: actions/checkout@v3
       - run: pwd
       - run: ls -la
-      - run: asdasdqwd12e3
-      - run: uname -a
-      - run: cat /etc/issue
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
