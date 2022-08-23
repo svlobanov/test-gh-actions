@@ -1,27 +1,41 @@
 name: test123
 on: [workflow_dispatch, push]
+
 jobs:
-  Test-in-Debian-Stable:
+  Download-Deb-Package:
     runs-on: ubuntu-latest
     container:
       image: debian:stable
-      ports:
-        - 8018
-        - 8123
       volumes:
         - debpkg:/debpkg
     steps:
       - run: cat /etc/issue
       - run: uname -a
+      - run: pwd
+      - run: ls -la
+      - run: echo 1 > 4444
+      - run: cat 4444
+      - run: echo 555 > /debpkg/12345
+
+  Test-in-Debian-Stable:
+    needs: Download-Deb-Package
+    runs-on: ubuntu-latest
+    container:
+      image: debian:stable
+      volumes:
+        - debpkg:/debpkg
+    steps:
+      - run: cat /etc/issue
+      - run: uname -a
+      - run: pwd
+      - run: ls -la
+      - run: echo 1 > 4444
+      - run: cat 4444
       - run: ls -la /debpkg || echo no_debpkg
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: pwd
-      - run: ls -la
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
+      - run: dpkg --list
       - run: echo "🍏 This job's status is ${{ job.status }}."
