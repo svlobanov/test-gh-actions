@@ -22,8 +22,8 @@ jobs:
     # needs: Download-Deb-Package
     strategy:
       matrix:
-        #distro: ["debian:oldstable", "debian:stable", "debian:testing", "ubuntu:latest", "ubuntu:rolling"]
-        distro: ["debian:oldstable", "ubuntu:rolling"]
+        distro: ["debian:oldstable", "debian:stable", "debian:testing", "ubuntu:latest", "ubuntu:rolling"]
+        #distro: ["debian:oldstable", "ubuntu:rolling"]
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
