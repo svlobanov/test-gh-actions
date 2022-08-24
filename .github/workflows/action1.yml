@@ -3,6 +3,7 @@ on: [workflow_dispatch, push]
 
 jobs:
   Download-Deb-Package:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     container:
       image: debian:stable
@@ -18,27 +19,22 @@ jobs:
       - run: echo 555 > /debpkg/12345
 
   Test-in-OS-Containers:
-    needs: Download-Deb-Package
+    # needs: Download-Deb-Package
     strategy:
       matrix:
-        distro: ["debian:oldstable", "debian:stable", "debian:testing", "ubuntu:latest"]
+        #distro: ["debian:oldstable", "debian:stable", "debian:testing", "ubuntu:latest", "ubuntu:rolling"]
+        distro: ["debian:oldstable", "ubuntu:rolling"]
     runs-on: ubuntu-latest
-    container:
-      image: ${{ matrix.distro }}
-      volumes:
-        - debpkg:/debpkg
     steps:
-      - run: cat /etc/issue
-      - run: uname -a
-      - run: pwd
-      - run: ls -la
-      - run: echo 1 > 4444
-      - run: cat 4444
-      - run: ls -la /debpkg || echo no_debpkg
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: dpkg --list
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: Display git branch
+        run: git branch
+      - run: docker build . -t with-systemd/${{ matrix.distro }} --build-arg SOURCE=${{ matrix.distro }} -f .github/workflows/Deb-Based-Systemd.Dockerfile
+      - run: docker run -d --name test-cont --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup --privileged with-systemd/${{ matrix.distro }}
+      - run: docker exec test-cont sh -c "while ! systemctl is-system-running --wait; do sleep 1; done"
+      - run: docker exec test-cont systemctl list-units
+      - run: docker exec test-cont cat /etc/issue
+      - run: docker exec test-cont dpkg --list
+      - run: cat /etc/issue
+      - run: uname -a
